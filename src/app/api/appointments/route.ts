@@ -1,57 +1,54 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import clientPromise from "../../lib/mongodb";
-import { authOptions } from "../auth/[...nextauth]/route";
+import clientPromise from "@/lib/mongodb"; // use @ for root alias
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET() {
   try {
+    // 1️⃣ Get user session
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const db = (await clientPromise).db();
-    
-    // Get user role
-    const user = await db.collection("users").findOne({ 
-      email: session.user?.email 
-    });
+    // 2️⃣ Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db(); // default DB from MONGODB_URI
 
+    // 3️⃣ Find logged-in user
+    const user = await db.collection("users").findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Fetch appointments based on user role
-    let appointments;
-    if (user.role === 'Seller') {
-      appointments = await db.collection("appointments").find({
-        sellerEmail: session.user?.email
-      }).toArray();
-    } else {
-      appointments = await db.collection("appointments").find({
-        buyerEmail: session.user?.email
-      }).toArray();
-    }
+    // 4️⃣ Fetch appointments based on role
+    const query =
+      user.role === "Seller"
+        ? { sellerEmail: session.user.email }
+        : { buyerEmail: session.user.email };
 
-    // Enrich appointments with user names
+    const appointments = await db.collection("appointments").find(query).toArray();
+
+    // 5️⃣ Enrich appointments with user names
     const enrichedAppointments = await Promise.all(
       appointments.map(async (appointment) => {
         const [seller, buyer] = await Promise.all([
           db.collection("users").findOne({ email: appointment.sellerEmail }),
-          db.collection("users").findOne({ email: appointment.buyerEmail })
+          db.collection("users").findOne({ email: appointment.buyerEmail }),
         ]);
 
         return {
           ...appointment,
-          sellerName: seller?.name,
-          buyerName: buyer?.name
+          sellerName: seller?.name ?? "",
+          buyerName: buyer?.name ?? "",
         };
       })
     );
 
+    // 6️⃣ Return JSON
     return NextResponse.json({ appointments: enrichedAppointments });
   } catch (error) {
-    console.error("Get appointments error:", error);
+    console.error("GET /api/appointments error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
