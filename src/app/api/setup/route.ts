@@ -6,7 +6,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
     // Fallback to session (first sign-in may include it)
     if (!refreshTokenPlain) {
-      refreshTokenPlain = (session as any).refreshToken || null;
+      refreshTokenPlain = (session as { refreshToken?: string }).refreshToken || null;
     }
     const encrypted = refreshTokenPlain ? encrypt(refreshTokenPlain) : null;
 

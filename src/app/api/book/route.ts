@@ -7,7 +7,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Optionally also create on buyer calendar using buyer token (available in session)
     try {
-      const buyerAccessToken: string | undefined = (session as any).accessToken;
+      const buyerAccessToken: string | undefined = (session as { accessToken?: string }).accessToken;
       if (buyerAccessToken) {
         const oauth2 = oauthClientFromAccessToken(buyerAccessToken);
         const { google } = await import("googleapis");

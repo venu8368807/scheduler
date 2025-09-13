@@ -80,13 +80,13 @@ export default function Home() {
                 onClick={() => router.push('/setup?role=Seller')}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
               >
-                I'm a Seller
+                I&apos;m a Seller
               </button>
               <button
                 onClick={() => router.push('/setup?role=Buyer')}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
               >
-                I'm a Buyer
+                I&apos;m a Buyer
               </button>
             </div>
           </div>

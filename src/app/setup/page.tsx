@@ -2,9 +2,9 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
-export default function Setup() {
+function SetupContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -116,5 +116,13 @@ export default function Setup() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Setup() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-lg">Loading...</div></div>}>
+      <SetupContent />
+    </Suspense>
   );
 }

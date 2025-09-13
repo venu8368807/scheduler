@@ -2,8 +2,9 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "../../../lib/mongodb";
+import type { NextAuthOptions } from "next-auth";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -23,7 +24,7 @@ export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, account }: { token: import("next-auth/jwt").JWT; account?: import("next-auth").Account | null }) {
+    async jwt({ token, account }) {
       // On first sign in, account will exist
       if (account) {
         token.accessToken = account.access_token;
@@ -31,14 +32,9 @@ export const authOptions = {
       }
       return token;
     },
-    async session({ session, token }: { session: import("next-auth").Session; token: import("next-auth/jwt").JWT }) {
-      // Define a custom session type to avoid 'any'
-      type CustomSession = import("next-auth").Session & {
-        accessToken?: string | null;
-        refreshToken?: string | null;
-      };
-      (session as CustomSession).accessToken = typeof token?.accessToken === "string" ? token.accessToken : null;
-      (session as CustomSession).refreshToken = typeof token?.refreshToken === "string" ? token.refreshToken : null;
+    async session({ session, token }) {
+      session.accessToken = typeof token?.accessToken === "string" ? token.accessToken : undefined;
+      session.refreshToken = typeof token?.refreshToken === "string" ? token.refreshToken : undefined;
       return session;
     },
   },

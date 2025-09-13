@@ -220,7 +220,7 @@ export default function Appointments() {
                               </div>
                               <div className="ml-3">
                                 <p className="text-sm text-blue-800">
-                                  This appointment is scheduled for the future. You'll receive a calendar invite.
+                                  This appointment is scheduled for the future. You&apos;ll receive a calendar invite.
                                 </p>
                               </div>
                             </div>
@@ -253,8 +253,8 @@ export default function Appointments() {
                   </h3>
                   <p className="text-gray-500 mb-6">
                     {userRole === 'Seller' 
-                      ? 'You don\'t have any appointments yet. Share your calendar to start accepting bookings.'
-                      : 'You haven\'t booked any appointments yet. Browse available sellers to get started.'
+                      ? 'You don&apos;t have any appointments yet. Share your calendar to start accepting bookings.'
+                      : 'You haven&apos;t booked any appointments yet. Browse available sellers to get started.'
                     }
                   </p>
                   <button
